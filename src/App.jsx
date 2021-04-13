@@ -6,6 +6,8 @@ import { AmplifySignOut, withAuthenticator } from '@aws-amplify/ui-react';
 import { Paper, IconButton } from '@material-ui/core';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import FavoriteIcon from '@material-ui/icons/Favorite';
+import {  updateSong } from './graphql/mutations';
+import './App.css';
 
 Amplify.configure(awsconfig);
 
@@ -29,6 +31,22 @@ const fetchSongs = async () => {
   }
 }
 
+const addLike = async idx => {
+  try {
+    const song = songs[idx];
+    song.likes = song.likes +1;
+    delete song.createdAt;
+    delete song.updatedAt;
+
+    const songData = await API.graphql(graphqlOperation(updateSong, { input: song }));
+    const songList = [...songs];
+    songList[idx] = songData.data.updateSong;
+    setSongs(songList);
+  } catch (error) {
+    console.log('error on adding Like to song', error);
+  }
+}
+
   return (
     <div className="App">
       <header className="App-header">
@@ -39,6 +57,7 @@ const fetchSongs = async () => {
       {songs.map((song, idx) => {
         return(
           <Paper variant="outlined" elevation={2} key={`song${idx}`}>
+            ...
             <div className="songCard">
               <IconButton aria-label="play">
                 <PlayArrowIcon />
@@ -48,7 +67,7 @@ const fetchSongs = async () => {
                 <div className="songOwner">{song.owner}</div>
               </div>
               <div>
-                <IconButton aria-label="like">
+                <IconButton aria-label="like" onClick = {() => addLike(idx)}>
                   <FavoriteIcon />
                 </IconButton>
                 {song.likes}
