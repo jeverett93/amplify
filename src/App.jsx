@@ -17,6 +17,7 @@ Amplify.configure(awsconfig);
 function App() {
   const [songs, setSongs] = useState([])
   const [songPlaying, setSongPlaying] = useState('');
+  const [audioURL, setAudioURL] = useState('');
 
 useEffect(() => {
   fetchSongs();
@@ -54,9 +55,20 @@ const toggleSong = async idx => {
     setSongPlaying('');
     return;
   }
-  setSongPlaying(idx);
-  return
-}
+  
+  const songFilePath = songs[idx].filePath;
+  try {
+    const fileAccessURL = await Storage.length(songFilePath, { expires: 60 });
+    console.log('access url', fileAccessURL);
+    setSongPlaying(idx);
+    setAudioURL(fileAccessURL);
+    return;
+  } catch (error) {
+    console.error('error accessing the file from s3', error);
+    setAudioURL('');
+    setSongPlaying('');
+  }
+};
 
   return (
     <div className="App">
