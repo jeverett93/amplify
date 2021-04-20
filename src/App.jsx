@@ -58,7 +58,7 @@ const toggleSong = async idx => {
   
   const songFilePath = songs[idx].filePath;
   try {
-    const fileAccessURL = await Storage.length(songFilePath, { expires: 60 });
+    const fileAccessURL = await Storage.get(songFilePath, { expires: 60 });
     console.log('access url', fileAccessURL);
     setSongPlaying(idx);
     setAudioURL(fileAccessURL);
