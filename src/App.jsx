@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { listSongs } from './graphql/queries';
-import Amplify, { API, graphqlOperation } from 'aws-amplify';
+import Amplify, { API, graphqlOperation, Storage } from 'aws-amplify';
 import awsconfig from './aws-exports';
 import { AmplifySignOut, withAuthenticator } from '@aws-amplify/ui-react';
 import { Paper, IconButton } from '@material-ui/core';
