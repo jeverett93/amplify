@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactPlayer from 'react-player';
 import { listSongs } from './graphql/queries';
 import Amplify, { API, graphqlOperation, Storage } from 'aws-amplify';
 import awsconfig from './aws-exports';
@@ -97,6 +98,17 @@ const toggleSong = async idx => {
               </div>
               <div className="songDescription">{song.description}</div>
             </div>
+            {songPlaying === idx ? (
+              <div className="ourAudioPlayer">
+                <ReactPlayer
+                  url={audioURL}
+                  controls
+                  playing
+                  height="50px"
+                  onPause={() => toggleSong(idx)}
+                />
+              </div>
+            ) : null}
           </Paper>
         )
       })}
