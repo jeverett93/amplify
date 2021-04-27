@@ -7,11 +7,11 @@ import { AmplifySignOut, withAuthenticator } from "@aws-amplify/ui-react";
 import { Paper, IconButton, TextField } from "@material-ui/core";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import FavoriteIcon from "@material-ui/icons/Favorite";
-import { updateSong } from "./graphql/mutations";
+import { updateSong, createSong } from "./graphql/mutations";
 import PauseIcon from "@material-ui/icons/Pause";
 import AddIcon from "@material-ui/icons/Add";
-import { Publish } from "@material-ui/icons";
-import PublishIcon from '@material-ui/icons/Publish';
+import PublishIcon from "@material-ui/icons/Publish";
+import { v4 as uuid } from 'uuid';
 import "./App.css";
 
 Amplify.configure(awsconfig);
@@ -76,25 +76,56 @@ function App() {
   };
 
   const AddSong = ({ onUpload }) => {
+    const [songData, setSongData] = useState({});
+    const [mp3Data, setMp3Data] = useState();
+
     const uploadSong = async () => {
       // Upload the song
+      console.log("songData", songData);
+      const { title, description, owner } = songData;
+
+      const { key } = await Storage.put(`${uuid()}.mp3`, mp3Data, { contentType: 'audio/mp3' })
+
+      const createSongInput = {
+        id: uuid(),
+        title,
+        description,
+        owner,
+        filePath: key,
+        like: 0
+      };
+      await API.graphql(graphqlOperation(createSong, { input: createSongInput}));
+
       onUpload();
     };
 
     return (
       <div className="newSong">
-        <TextField 
-          label="Title" 
-          />
-        <TextField 
-          label="Artist" 
-          />
-        <TextField 
-          label="Description" 
-          />
-          <IconButton onClick={uploadSong}>
-            <PublishIcon />
-          </IconButton>
+        <TextField
+          label="Title"
+          value={songData.title}
+          onChange={(e) => setSongData({ ...songData, title: e.target.value })}
+        />
+        <TextField
+          label="Artist"
+          value={songData.owner}
+          onChange={(e) => setSongData({ ...songData, owner: e.target.value })}
+        />
+        <TextField
+          label="Description"
+          value={songData.description}
+          onChange={(e) =>
+            setSongData({ ...songData, description: e.target.value })
+          }
+        />
+        <input
+          type="file"
+          accept="audio/mp3"
+          onChange={(e) => setMp3Data(e.target.files[0])}
+        />
+        <IconButton onClick={uploadSong}>
+          <PublishIcon />
+        </IconButton>
       </div>
     );
   };
@@ -141,6 +172,7 @@ function App() {
                 <AddSong
                   onUpload={() => {
                     setShowAddNewSong(false);
+                    fetchSongs();
                   }}
                 />
               ) : (
