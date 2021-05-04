@@ -92,7 +92,7 @@ function App() {
         description,
         owner,
         filePath: key,
-        like: 0
+        likes: 0
       };
       await API.graphql(graphqlOperation(createSong, { input: createSongInput}));
 
